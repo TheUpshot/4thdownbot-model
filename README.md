@@ -49,3 +49,17 @@ the following syntax at the command line and follow the prompts:
 python bot.py
 ```
 
+#### Field goal model
+
+To get the bot's estimated chance of making a field goal, you can call the field goal model programatically as a node module (see `model-fg/example.js` for details) or via the command line. A sample query:
+
+```bash
+node model-fg/model-fg.js --kicker_code=AH-2600 --temp=40 --wind=10 --yfog=67 --chanceOfRain=10 --is_dome=1 --is_turf=0
+```
+
+As an alternative to supplying the [Armchair Analysis](http://armchairanalysis.com/) player code, you can instead specify the team on offense (team codes are fairly standard, but see `model-fg.js` for a lookup table). Similarly, you can supply the home team instead of `is_dome` and `is_turf` arguments:
+
+```bash
+node model-fg/model-fg.js --offense=PHI --home=NE --temp=40 --wind=10 --yfog=67 --chanceOfRain=10
+```
+
