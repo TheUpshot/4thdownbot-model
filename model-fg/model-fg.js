@@ -1,8 +1,11 @@
 (function() {
 
+  console.log("");
+
   function init(_) {
 
     var modelFG = {
+
       calculateProb: function(d, situation) {
         var situation = situation || {};
         var cloned = _.chain(d)
@@ -370,8 +373,18 @@
 
   }
 
+  // if called from command line, log probability to console and exit
+  if (!module.parent) {
+    var argv = require('minimist')(process.argv.slice(2));
+    var fgMakeProb = init(require('underscore')).calculateProb(argv);
+    console.log("prob of making FG: ", fgMakeProb);
+    console.log("")
+    process.exit()
+  }
+  
   if (typeof define === "function" && define.amd) define(['underscore'], init);
   else if (typeof module === "object" && module.exports) {
     module.exports = init(require('underscore'));
   }
+
 })();
