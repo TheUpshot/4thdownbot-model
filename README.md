@@ -1,2 +1,51 @@
-# 4thdownbot-model
-The model behind @NYT4thDownBot
+Fourth Down Bot
+===============
+
+This is the code that powers the [New York Times 4th Down Bot](http://nyt4thdownbot.com/). Using
+NFL play-by-play data from [Armchair Analysis](http://armchairanalysis.com/), this code will:
+
+- Munge the raw play-by-play data and transform it into a form suitable for modeling
+- Create a win probability model and serialize that model
+- Provide all of the functions to make optimal 4th down decisions for a given play
+
+The Armchair Analysis data is *not free*. It costs $49 (one-time) to gain access to play-by-play
+data from the 2000-2014 NFL seasons. There is also a professional package that will provide
+weekly updates. Without the Armchair Analysis data, you will not be able to use much of this code.
+
+This code currently requires Python 2.7 and is not Python 3 compliant to my knowledge.
+
+## Python package requirements
+
+- click
+- matplotlib (if you want to visually diagnose your model's performance)
+- numpy
+- pandas
+- scikit-learn
+
+## Usage
+
+Unzip the play-by-play data into a directory. Run the following code from the directory
+where you want the Fourth Down Bot code to live. It will create the subdirectories
+`models` and `data` to store files.
+
+```bash
+python data_prep.py <pbp data dir>
+python model_train.py
+```
+
+If you wish to view the calibration plots and ROC curves for the model, run
+`model_train` with the `--plot` flag, like so:
+
+```bash
+python model_train.py --plot
+```
+
+There is a rudimentary command line interface for interactively querying 
+the bot's model, although the model was built to be queried programatically. 
+Feel free to improve upon this. To query the model interactively, use
+the following syntax at the command line and follow the prompts:
+
+```bash
+python bot.py
+```
+
