@@ -24,7 +24,7 @@ def load_games(game_data_fname, remove_ties=False):
     # Data from 2000 import is less reliable, omit this season
     # and use regular season games only.
 
-    games = (games.query('seas >= 2001 & week <= 17')
+    games = (games.query('seas >= 2001 & wk <= 17')
                   .drop(['stad', 'temp', 'humd', 'wspd',
                          'wdir', 'cond', 'surf'],
                         axis='columns'))
