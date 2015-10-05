@@ -118,9 +118,9 @@ def main(plot):
     click.echo('Pickling model and scaler.')
     if not os.path.exists('models'):
         os.mkdir('models')
-    else:
-        joblib.dump(logit, 'models/win_probability.pkl')
-        joblib.dump(scaler, 'models/scaler.pkl')
+
+    joblib.dump(logit, 'models/win_probability.pkl')
+    joblib.dump(scaler, 'models/scaler.pkl')
 
 if __name__ == '__main__':
     main()
