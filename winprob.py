@@ -234,10 +234,15 @@ def get_historical_decision(situation, data, decision):
                                   (historical_data.yfog_bin == yfog_bin) &
                                   (historical_data.short == short_tg) &
                                   (historical_data.med == med_tg) &
-                                  (historical_data['long'] == long_tg)]
+                                  (historical_data['long'] == long_tg)].copy()
 
     # Check to see if no similar situations
-    if historical_data.shape[0] == 0:
+    if len(history)==0:
+        decision['historical_goforit_pct'] = 'None'
+        decision['historical_punt_pct'] = 'None'
+        decision['historical_kick_pct'] = 'None'
+        decision['historical_N'] = 'None'
+    elif historical_data.shape[0] == 0:
         decision['historical_goforit_pct'] = 'None'
         decision['historical_punt_pct'] = 'None'
         decision['historical_kick_pct'] = 'None'
