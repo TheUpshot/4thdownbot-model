@@ -234,7 +234,7 @@ def get_historical_decision(situation, data, decision):
                                   (historical_data.yfog_bin == yfog_bin) &
                                   (historical_data.short == short_tg) &
                                   (historical_data.med == med_tg) &
-                                  (historical_data['long'] == long_tg)].copy()
+                                  (historical_data['long'] == long_tg)]
 
     # Check to see if no similar situations
     if len(history)==0:

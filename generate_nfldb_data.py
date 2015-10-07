@@ -185,10 +185,6 @@ def play_to_nyt_format(g, p, score):
 
     tmp['pnet'] = p.kicking_yds - p.kickret_yds
 
-    # TODO: define a new function to tabulate these
-    tmp['timo'] = 0
-    tmp['timd'] = 0
-
     tmp['dwn'] = p.down
     tmp['pts'] = p.points
     if p.scoring_team == tmp['def']:
