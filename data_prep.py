@@ -19,7 +19,7 @@ def load_games(game_data_fname, remove_ties=False):
     -------
     games           : DataFrame
     """
-    games = pd.read_csv(game_data_fname, index_col=0)
+    games = pd.read_csv(game_data_fname, index_col='gid')
 
     # Data from 2000 import is less reliable, omit this season
     # and use regular season games only.
@@ -58,16 +58,18 @@ def load_pbp(pbp_data_fname, games, remove_knees=False):
     -------
     pbp            : DataFrame
     """
-    pbp = pd.read_csv(pbp_data_fname, index_col=1, low_memory=False,
+    pbp = pd.read_csv(pbp_data_fname, low_memory=False,
                       usecols=['gid', 'pid', 'off', 'def', 'type', 'qtr',
                                'min', 'sec', 'kne', 'ptso', 'ptsd', 'timo',
                                'timd', 'dwn', 'ytg', 'yfog', 'yds', 'fd',
                                'fgxp', 'good', 'pnet', 'pts', 'detail'])
 
     # Remove overtime
+    pbp['qtr'] = pbp['qtr'].astype(np.int32)
     pbp = pbp[pbp.qtr <= 4]
 
     # pid 183134 should have a value of 0 for min, but has "0:00"
+    pbp['min'] = pbp['min'].astype(np.chararray)
     pbp['min'] = pbp['min'].replace({'0:00': 0})
     pbp['min'] = pbp['min'].astype(np.int64)
 
@@ -104,8 +106,8 @@ def code_fourth_downs(df):
     punt, or attempt a field goal. If intent is not clear, do not include
     the play.
     """
-    
-    fourths = df.loc[df.dwn == 4, :].copy()
+
+    fourths = df.loc[df.dwn.fillna(0).astype(np.int32) == 4, :].copy()
     fourths['goforit'] = np.zeros(fourths.shape[0])
     fourths['punt'] = np.zeros(fourths.shape[0])
     fourths['kick'] = np.zeros(fourths.shape[0])
@@ -205,7 +207,7 @@ def punt_averages(punt_data_fname, out_fname, joined):
     or punt returned for a TD.
     """
     
-    punts = pd.read_csv(punt_data_fname, index_col=0)
+    punts = pd.read_csv(punt_data_fname, index_col='yfog')
 
     punts = pd.merge(punts, joined[['yfog']],
                      left_index=True, right_index=True)
@@ -263,6 +265,7 @@ def first_down_rates(df_plays, yfog):
     """
 
     downs = df_plays.copy()
+    downs['first_down'] = downs['first_down'].astype(np.float32)
     if yfog == 'yfog_bin':
         # Break the field into deciles
         downs[yfog] = downs.yfog // 10
@@ -289,6 +292,7 @@ def first_down_rates(df_plays, yfog):
     merged['weighted_total'] = (merged.weighted_N_x + merged.weighted_N_y)
     merged['total_N'] = (merged.N_x + merged.N_y)
     merged['weighted_fdr'] = (merged.weighted_total / merged.total_N)
+
     merged = merged.drop(labels=['weighted_N_x', 'weighted_N_y',
                                  'weighted_total', 'total_N'], axis='columns')
     merged = merged.rename(columns={'dwn_x': 'dwn'})
@@ -445,6 +449,7 @@ def main(pbp_data_location):
     fd_inside_10 = first_down_rates(df_plays, 'yfog')
     joined = join_df_first_down_rates(joined, fd_open_field, fd_inside_10)
 
+    joined = joined.loc[joined.dwn<=4,:].copy()
     click.echo('Writing cleaned play-by-play data.')
     joined.to_csv('data/pbp_cleaned.csv')
 

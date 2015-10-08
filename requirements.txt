@@ -5,3 +5,6 @@ pandas==0.16.2
 scikit-learn==0.16.1
 scipy==0.16.0
 wheel==0.24.0
+numexpr==2.4.4
+nfldb==0.2.11
+nflgame==1.2.16

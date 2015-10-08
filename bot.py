@@ -11,7 +11,11 @@ import winprob as wp
 def load_data():
     click.echo('Loading data and setting up model.')
     data = {}
-    data['fgs'] = pd.read_csv('data/fgs_grouped_nyt.csv')
+
+    try:
+        data['fgs'] = pd.read_csv('data/fgs_grouped_nyt.csv')
+    except IOError:
+        data['fgs'] = pd.read_csv('data/fgs_grouped.csv')
     data['punts'] = pd.read_csv('data/punts_grouped.csv')
     data['fd_open_field'] = pd.read_csv('data/fd_open_field.csv')
     data['fd_inside_10'] = pd.read_csv('data/fd_inside_10.csv')
