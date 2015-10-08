@@ -20,6 +20,7 @@ Questions about the Python code can be directed to [Trey Causey](mailto:trey@the
 
 - click
 - matplotlib (if you want to visually diagnose your model's performance)
+- naked
 - numpy
 - pandas
 - scikit-learn
@@ -53,7 +54,7 @@ python bot.py
 
 #### Field goal model
 
-To get the bot's estimated chance of making a field goal, you can call the field goal model programatically as a node module (see `model-fg/example.js` for details) or via the command line. A sample query:
+The bot's field goal model is also accessible as a separate module, via either a node script (see `model-fg/example.js` for details) or the command line. A sample query:
 
 ```bash
 node model-fg/model-fg.js --kicker_code=AH-2600 --temp=40 --wind=10 --yfog=67 --chanceOfRain=10 --is_dome=1 --is_turf=0

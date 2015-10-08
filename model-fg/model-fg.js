@@ -1,7 +1,5 @@
 (function() {
 
-  console.log("");
-
   function init(_) {
 
     var modelFG = {
@@ -373,13 +371,13 @@
 
   }
 
-  // if called from command line, log probability to console and exit
+  // if called from command line or python, write probability to stdout
   if (!module.parent) {
     var argv = require('minimist')(process.argv.slice(2));
     var fgMakeProb = init(require('underscore')).calculateProb(argv);
-    console.log("prob of making FG: ", fgMakeProb);
+    console.log("prob of making FG: ")
+    process.stdout.write(fgMakeProb.toString())
     console.log("")
-    process.exit()
   }
   
   if (typeof define === "function" && define.amd) define(['underscore'], init);
