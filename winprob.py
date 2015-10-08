@@ -266,16 +266,18 @@ def expected_wp_fg(situation, probs, data):
         pos = situation['fg_make_prob']
     else:
         fgs = data['fgs']
-
         # Set the probability of success of implausibly long kicks to 0.
         if situation['yfog'] < 42:
             pos = 0
         else:
             # Account for indoor vs. outdoor kicking
-            if situation['dome'] > 0:
-                pos = fgs.loc[fgs.yfog == situation['yfog'], 'dome_rate'].values[0]
-            else:
-                pos = fgs.loc[fgs.yfog == situation['yfog'], 'open_rate'].values[0]
+            try:
+                if situation['dome'] > 0:
+                    pos = fgs.loc[fgs.yfog == situation['yfog'], 'dome_rate'].values[0]
+                else:
+                    pos = fgs.loc[fgs.yfog == situation['yfog'], 'open_rate'].values[0]
+            except KeyError:
+                pos = fgs.loc[fgs.yfog == situation['yfog'], 'average'].values[0]
 
     return pos, expected_win_prob(pos, probs['fg_wp'], probs['missed_fg_wp'])
 
