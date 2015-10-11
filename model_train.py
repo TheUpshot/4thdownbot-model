@@ -48,8 +48,8 @@ def plot_roc(fpr, tpr, roc_auc):
     """
     fig, ax = plt.subplots()
     ax.set(title='Receiver Operating Characteristic',
-           xlim=[0, 1], ylim=[0, 1], xlabel='True Positive Rate',
-           ylabel='False Positive Rate')
+           xlim=[0, 1], ylim=[0, 1], xlabel='False Positive Rate',
+           ylabel='True Positive Rate')
     ax.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
     ax.plot([0, 1], [0, 1], 'k--')
     ax.legend(loc='lower right')
