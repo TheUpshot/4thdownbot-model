@@ -12,9 +12,9 @@ The Armchair Analysis data is *not free*. It costs $49 (one-time) to gain access
 data from the 2000-2014 NFL seasons. There is also a professional package that will provide
 weekly updates. Without the Armchair Analysis data, you will not be able to use much of this code.
 
-This code currently requires Python 2.7 and is not Python 3 compliant to our knowledge.
+This code currently requires Python 2.7 and is not Python 3 compliant to our knowledge. Questions about the Python code can be directed to [Trey Causey](mailto:trey@thespread.us).
 
-Questions about the Python code can be directed to [Trey Causey](mailto:trey@thespread.us).
+NOTE: If you are unable to purchase the Armchair Analysis data, [Ben Dilday](https://github.com/bdilday) has created a fork of this code that uses freely available play-by-play data. There are no guarantees that this fork is current with the production version of the 4th Down Bot and this fork is not affiliated in any way with or supported by *The Upshot* or Trey Causey. You can find that fork [here](https://github.com/bdilday/4thdownbot-model). Questions about that fork should be directed to Ben Dilday. 
 
 ## Python package requirements
 
