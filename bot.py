@@ -16,6 +16,7 @@ def load_data():
     data['punts'] = pd.read_csv('data/punts_grouped.csv')
     data['fd_open_field'] = pd.read_csv('data/fd_open_field.csv')
     data['fd_inside_10'] = pd.read_csv('data/fd_inside_10.csv')
+    data['final_drives'] = pd.read_csv('data/final_drives.csv')
     data['decisions'] = pd.read_csv('data/coaches_decisions.csv')
     data['scaler'] = joblib.load('models/scaler.pkl')
     data['features'] = ['dwn', 'yfog', 'secs_left',

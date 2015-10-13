@@ -26,7 +26,7 @@ def generate_response(situation, data, model):
     payload   : dict
     """
 
-    situation = calculate_features(situation)
+    situation = calculate_features(situation, data)
 
     # Generate the game state of possible outcomes
     scenarios = simulate_scenarios(situation, data)
@@ -42,7 +42,7 @@ def generate_response(situation, data, model):
     return payload
 
 
-def calculate_features(situation):
+def calculate_features(situation, data):
     """Generate features needed for the win probability model that are
     not contained in the general game state information passed via API.
 
@@ -65,6 +65,11 @@ def calculate_features(situation):
 
     situation['spread'] = (
             situation['spread'] * (situation['secs_left'] / 3600))
+
+    cum_pct = (
+        (situation['secs_left'] - data['final_drives'].secs).abs().argmin())
+
+    situation['poss_prob'] = data['final_drives'].ix[cum_pct].cum_pct
 
     return situation
 
@@ -98,7 +103,7 @@ def simulate_scenarios(situation, data):
         scenarios['first_down'] = p.first_down(situation)
 
     scenarios['fail'] = p.change_poss(situation, p.turnover_downs, features)
-    
+
     scenarios['punt'] = p.change_poss(situation, p.punt, features,
                                       data=data['punts'])
 
@@ -112,7 +117,7 @@ def simulate_scenarios(situation, data):
 def generate_win_probabilities(situation, scenarios, model, data, **kwargs):
     """For each of the possible scenarios, estimate the win probability
     for that game state."""
-    
+
     probs = dict.fromkeys([k + '_wp' for k in scenarios.keys()])
 
     features = data['features']
@@ -122,7 +127,7 @@ def generate_win_probabilities(situation, scenarios, model, data, **kwargs):
 
     feature_vec = [val for key, val in situation.items() if key in features]
     feature_vec = data['scaler'].transform(feature_vec)
-    
+
     probs['pre_play_wp'] = model.predict_proba(feature_vec)[0][1]
 
     for scenario, outcome in scenarios.items():
@@ -156,7 +161,14 @@ def generate_win_probabilities(situation, scenarios, model, data, **kwargs):
 
         probs['fail_wp'] = ((1 - prob_opp_fg) * probs['fail_wp'])
 
+    # Teams may not get the ball back during the 4th quarter
+
+    if situation['qtr'] == 4:
+        probs['fail_wp'] = probs['fail_wp'] * situation['poss_prob']
+        probs['punt_wp'] = probs['punt_wp'] * situation['poss_prob']
+
     # Always have a 'success_wp' field, regardless of TD or 1st down
+
     if 'touchdown_wp' in probs:
         probs['success_wp'] = probs['touchdown_wp']
     else:
@@ -168,7 +180,7 @@ def generate_decision(situation, data, probs, **kwargs):
     """Decide on optimal play based on game states and their associated
     win probabilities. Note the currently 'best play' is based purely
     on the outcome with the highest expected win probability. This
-    does not account for uncertainty of these estimates. 
+    does not account for uncertainty of these estimates.
 
     For example, the win probabilty added by a certain play may be
     very small (0.0001), but that may be the 'best play.'
@@ -193,9 +205,15 @@ def generate_decision(situation, data, probs, **kwargs):
     # probability of a successful field goal kick.
 
     if (situation['secs_left'] < 40 and (-2 <= situation['score_diff'] <= 0)
-              and situation['timd'] == 0):
-        probs['fg_wp'] = probs['prob_success_fg']
-        probs['fg_ev_wp'] = probs['prob_success_fg']
+        and situation['timd'] == 0):
+            probs['fg_wp'] = probs['prob_success_fg']
+            probs['fg_ev_wp'] = probs['prob_success_fg']
+
+    # If down by more than a field goal in the 4th quarter, need to
+    # incorporate the probability that you will get the ball back.
+
+    if situation['qtr'] == 4 and situation['score_diff'] < -3:
+        probs['fg_ev_wp'] = probs['fg_ev_wp'] * situation['poss_prob']
 
     # Breakeven success probabilities
     decision['breakeven_punt'], decision['breakeven_fg'] = breakeven(probs)
@@ -205,6 +223,11 @@ def generate_decision(situation, data, probs, **kwargs):
             best_kicking_option(probs, wp_ev_goforit))
 
     # Make the final call on kick / punt / go for it
+    # If a win is unlikely in any circumstance, favor going for it.
+
+    # if probs['pre_play_wp'] < .05:
+    #     decision['best_play'] = 'go for it'
+    # else:
     decision['best_play'] = decide_best_play(decision)
 
     # Only provide historical data outside of two-minute warning
@@ -257,7 +280,7 @@ def expected_win_prob(pos_prob, pos_win_prob, neg_win_prob):
 
 def expected_wp_fg(situation, probs, data):
     """Expected WP from kicking, factoring in p(FG made)."""
-    if 'fg_make_prob' in situation and isinstance(situation['fg_make_prob'], float):        
+    if 'fg_make_prob' in situation and isinstance(situation['fg_make_prob'], float):
         pos = situation['fg_make_prob']
     else:
         fgs = data['fgs']
@@ -272,6 +295,7 @@ def expected_wp_fg(situation, probs, data):
             else:
                 pos = fgs.loc[fgs.yfog == situation['yfog'], 'open_rate'].values[0]
 
+    return pos, expected_win_prob(pos, probs['fg_wp'], probs['missed_fg_wp'])
     return pos, expected_win_prob(pos, probs['fg_wp'], probs['missed_fg_wp'])
 
 
@@ -329,13 +353,14 @@ def calc_prob_success(situation, data):
 def best_kicking_option(probs, wp_ev_goforit):
     """Use the expected win probabilities to determine best kicking option"""
 
-    if probs['punt_wp'] > probs['fg_ev_wp']:
-        decision = 'punt'
-        win_prob_added = wp_ev_goforit - probs['punt_wp']
-
-    else:
+    # Account for end of game situations where FG WP is higher
+    if probs['fg_ev_wp'] > probs['punt_wp'] and probs['prob_success_fg'] > .3:
         decision = 'kick'
         win_prob_added = wp_ev_goforit - probs['fg_ev_wp']
+
+    else:
+        decision = 'punt'
+        win_prob_added = wp_ev_goforit - probs['punt_wp']
 
     return decision, win_prob_added
 
@@ -367,9 +392,8 @@ def random_play(data):
     situation['timo'] = random.randint(0, 3)
     situation['timd'] = random.randint(0, 3)
     situation['spread'] = 0
-    situation['ou'] = 41
 
-    situation = calculate_features(situation)
+    situation = calculate_features(situation, data)
 
     situation['dome'] = random.randint(0, 1)
     return situation

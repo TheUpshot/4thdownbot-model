@@ -104,7 +104,7 @@ def code_fourth_downs(df):
     punt, or attempt a field goal. If intent is not clear, do not include
     the play.
     """
-    
+
     fourths = df.loc[df.dwn == 4, :].copy()
     fourths['goforit'] = np.zeros(fourths.shape[0])
     fourths['punt'] = np.zeros(fourths.shape[0])
@@ -167,7 +167,7 @@ def fg_success_rate(fg_data_fname, out_fname, min_pid=473957):
     """Historical field goal success rates by field position.
 
     By default, uses only attempts from >= 2011 season to reflect
-    more improved kicker performance. 
+    more improved kicker performance.
 
     Returns and writes results to a CSV.
 
@@ -204,7 +204,7 @@ def punt_averages(punt_data_fname, out_fname, joined):
     Currently does not incorporate the possibility of a muffed punt
     or punt returned for a TD.
     """
-    
+
     punts = pd.read_csv(punt_data_fname, index_col=0)
 
     punts = pd.merge(punts, joined[['yfog']],
@@ -363,6 +363,42 @@ def kneel_down(df):
     return df
 
 
+def calculate_prob_poss(drive_fname, out_name, games):
+    """Determine the starting point for the final possession in each
+    non-overtime, regular season game to use as a proxy for the probability
+    that the team will have another possession in the game during the
+    4th quarter.
+
+    Used to weight the win probabilities in the 4th quarter.
+    """
+
+    drives = pd.read_csv(drive_fname, index_col=1)
+    drives = drives.merge(games[['seas', 'week']],
+                          left_index=True, right_index=True)
+
+    # Restrict to non-overtime games
+
+    final_qtr = drives.reset_index().groupby('gid')[['qtr']].max()
+    overtime_games = final_qtr[final_qtr.qtr > 4].index
+    drives_reduced = drives[-drives.index.isin(overtime_games)].copy()
+
+    # Starting time of final drive of game
+
+    drives_reduced = drives_reduced.loc[drives_reduced.qtr == 4]
+    final_drive = drives_reduced.reset_index().groupby('gid').last()
+    final_drive['secs'] = (final_drive['min'] * 60) + final_drive.sec
+
+    # Group and get summary statistics
+    final_drives = (final_drive.groupby('secs')['fpid']
+                               .agg({'n': len})
+                               .reset_index())
+
+    final_drives['pct'] = final_drives.n / final_drives.n.sum()
+    final_drives['cum_pct'] = final_drives.pct.cumsum()
+
+    final_drives.to_csv('data/final_drives.csv')
+
+
 @click.command()
 @click.argument('pbp_data_location')
 def main(pbp_data_location):
@@ -444,6 +480,11 @@ def main(pbp_data_location):
     fd_open_field = first_down_rates(df_plays, 'yfog_bin')
     fd_inside_10 = first_down_rates(df_plays, 'yfog')
     joined = join_df_first_down_rates(joined, fd_open_field, fd_inside_10)
+
+    click.echo('Calculating final drive statistics.')
+    final_drives = calculate_prob_poss(
+        '{}/DRIVE.csv'.format(pbp_data_location),
+        'data/final_drives.csv', games)
 
     click.echo('Writing cleaned play-by-play data.')
     joined.to_csv('data/pbp_cleaned.csv')
