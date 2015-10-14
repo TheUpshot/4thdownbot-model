@@ -373,7 +373,7 @@ def calculate_prob_poss(drive_fname, out_name, games):
     """
 
     drives = pd.read_csv(drive_fname, index_col=1)
-    drives = drives.merge(games[['seas', 'week']],
+    drives = drives.merge(games[['seas', 'wk']],
                           left_index=True, right_index=True)
 
     # Restrict to non-overtime games
