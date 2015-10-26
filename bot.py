@@ -8,6 +8,10 @@ from Naked.toolshed.shell import muterun_js
 
 import winprob as wp
 
+try:
+    raw_input
+except NameError:
+    raw_input = input # python3
 
 def load_data():
     click.echo('Loading data and setting up model.')

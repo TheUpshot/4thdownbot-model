@@ -1,0 +1,11 @@
+*.py[cod]
+__pycache__/
+__pycache__
+
+# OSX
+.DS_Store
+
+# Eclipse
+.project
+.pydevproject
+/.settings
