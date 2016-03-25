@@ -14,6 +14,8 @@ weekly updates. Without the Armchair Analysis data, you will not be able to use 
 
 This code currently requires Python 2.7 and is not Python 3 compliant to our knowledge. Questions about the Python code can be directed to [Trey Causey](mailto:trey@thespread.us).
 
+Please note that none of the file operations are supported on Windows.
+
 NOTE: If you are unable to purchase the Armchair Analysis data, [Ben Dilday](https://github.com/bdilday) has created a fork of this code that uses freely available play-by-play data. There are no guarantees that this fork is current with the production version of the 4th Down Bot and this fork is not affiliated in any way with or supported by *The Upshot* or Trey Causey. You can find that fork [here](https://github.com/bdilday/4thdownbot-model). Questions about that fork should be directed to Ben Dilday. 
 
 ## Python package requirements
