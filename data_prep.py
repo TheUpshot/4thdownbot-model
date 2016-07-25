@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 
 import os
-
+import sys
 import click
 import numpy as np
 import pandas as pd
@@ -68,8 +68,9 @@ def load_pbp(pbp_data_fname, games, remove_knees=False):
     pbp = pbp[pbp.qtr <= 4]
 
     # pid 183134 should have a value of 0 for min, but has "0:00"
-    pbp['min'] = pbp['min'].replace({'0:00': 0})
-    pbp['min'] = pbp['min'].astype(np.int64)
+    if sys.version_info[0] == 2:
+        pbp['min'] = pbp['min'].replace({'0:00': 0})
+        pbp['min'] = pbp['min'].astype(np.int64)
 
     # Restrict to regular season games after 2000
     pbp = pbp[pbp.gid.isin(games.index)]

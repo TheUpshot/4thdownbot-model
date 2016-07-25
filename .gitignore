@@ -1,0 +1,19 @@
+*.py[cod]
+__pycache__/
+__pycache__
+
+# OSX
+.DS_Store
+
+# Eclipse
+.project
+.pydevproject
+/.settings
+
+# Do not commit data files
+/data/*.csv
+/models/*.pkl
+/models/*.npy
+
+# generally do not commit node_modules (controversial...)
+/node_modules

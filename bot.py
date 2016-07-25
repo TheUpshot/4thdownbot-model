@@ -8,6 +8,12 @@ from Naked.toolshed.shell import muterun_js
 
 import winprob as wp
 
+try:
+    raw_input
+except NameError:
+    raw_input = input # python3
+
+import sys
 
 def load_data():
     click.echo('Loading data and setting up model.')
@@ -27,9 +33,14 @@ def load_data():
     return data, model
 
 def fg_make_prob(situation):
-    args = ' '.join("--%s=%r" % (key,val) for (key,val) in situation.iteritems())
+    if sys.version_info[0] >= 3:
+        args = ' '.join("--%s=%r" % (key,val) for (key,val) in situation.items())        
+    else:
+        args = ' '.join("--%s=%r" % (key,val) for (key,val) in situation.iteritems())
     model_fg = muterun_js('model-fg/model-fg.js', args)
-    return model_fg.stdout.split()[-1]
+    stdoutResults = model_fg.stdout
+    stdoutSplit = stdoutResults.split()
+    return stdoutSplit[-1]
 
 @click.command()
 def run_bot():
