@@ -12,7 +12,8 @@ The Armchair Analysis data is *not free*. It costs $49 (one-time) to gain access
 data from the 2000-2014 NFL seasons. There is also a professional package that will provide
 weekly updates. Without the Armchair Analysis data, you will not be able to use much of this code.
 
-This code currently requires Python 2.7 and is not Python 3 compliant to our knowledge. Questions about the Python code can be directed to [Trey Causey](mailto:trey@thespread.us).
+This code currently requires Python 2.7 and or Python 3.4+. 
+Questions about the Python code can be directed to [Trey Causey](mailto:trey@thespread.us).
 
 Please note that none of the file operations are supported on Windows.
 
@@ -26,6 +27,10 @@ NOTE: If you are unable to purchase the Armchair Analysis data, [Ben Dilday](htt
 - numpy
 - pandas
 - scikit-learn
+
+## Node.js package requirements
+
+- underscore
 
 ## Usage
 

@@ -9,3 +9,11 @@ __pycache__
 .project
 .pydevproject
 /.settings
+
+# Do not commit data files
+/data/*.csv
+/models/*.pkl
+/models/*.npy
+
+# generally do not commit node_modules (controversial...)
+/node_modules

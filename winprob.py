@@ -4,6 +4,8 @@ import logging
 import random
 import sys
 
+from sklearn.utils.validation import NotFittedError
+
 from collections import OrderedDict
 
 import plays as p
@@ -126,7 +128,12 @@ def generate_win_probabilities(situation, scenarios, model, data, **kwargs):
     # Note there is more information in situation than just model features.
 
     feature_vec = [val for key, val in situation.items() if key in features]
-    feature_vec = data['scaler'].transform(feature_vec)
+    try:
+        feature_vec = data['scaler'].transform(feature_vec)
+    except NotFittedError:
+        raise Exception("Sklearn reports that the instance is not yet fitted. " + 
+                        "This usually means that the version of python used to train " +
+                        "the model is different from the version you are currently running.")
 
     probs['pre_play_wp'] = model.predict_proba(feature_vec)[0][1]
 
