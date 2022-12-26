@@ -4,4 +4,4 @@ numpy==1.9.3
 pandas==0.16.2
 scikit-learn==0.16.1
 scipy==0.16.0
-wheel==0.24.0
+wheel==0.38.1
